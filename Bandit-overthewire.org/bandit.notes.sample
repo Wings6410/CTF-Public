@@ -1,0 +1,31 @@
+#format of my notes file
+# very custom, very dumb
+
+-- bandit## --
+# Some title and text, 
+this section is the "notes" section 
+
+Lorem ipsum dolor sit amet, consectetur adipiscing 
+elit, sed do eiusmod tempor incididunt ut labore et 
+dolore magna aliqua. Ut enim ad minim veniam, quis 
+nostrud exercitation ullamco laboris nisi ut aliquip 
+ex ea commodo consequat. Duis aute irure dolor in 
+reprehenderit in voluptate velit esse cillum dolore 
+eu fugiat nulla pariatur. Excepteur sint occaecat 
+cupidatat non proident, sunt in culpa qui officia 
+deserunt mollit anim id est laborum.
+
+# note that the script will cut out anything longer than
+80 characters, so I limited the width of my notes. 
+
+# the Account feild is just a tag, and never filled
+Account:
+Comment: Some brief description of the box
+password: aasdferh1k34 # The password for the box
+
+-- bandit## --
+# some title 
+...
+Account:
+Comment:
+password: 

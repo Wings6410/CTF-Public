@@ -1,0 +1,43 @@
+
+#!/bin/bash
+
+# extracts a file that has been repeatedly compress
+# using bzip, gzip, and tar
+
+f="$1"
+ftype="$( file --mime-type -b d | cut -d/ -f2)"
+echo $ftype
+
+
+
+
+while :
+do
+case $ftype in
+
+        gzip)
+        mv $f $f.gz
+        gunzip $f.gz
+        ;;
+
+        x-bzip2)
+        mv $f $f.bz2
+        bunzip2 $f.bz2
+        ;;
+
+        x-tar)
+        mv $f $f.tar
+        tarName="$( tar -tf $f.tar | head -2 )"
+        tar -xf $f.tar
+        mv $tarName $f
+        rm $f.tar
+        ;;
+
+        *)
+        break
+	;;
+esac
+
+ftype="$( file --mime-type -b d | cut -d/ -f2)"
+echo $ftype
+done

@@ -1,0 +1,71 @@
+#!/bin/bash
+help() {
+	echo "Connect via ssh to the supplied bandit account"
+	echo
+	echo "Syntax:" 
+	echo "./bandit connect [-b|s] [bandit number]"  
+	echo "./bandit connect [-h]"
+	echo  
+	echo "options:"
+	echo "h	Display the help menu."
+	echo "b	Connect to the selected bandit account and use a password"
+	echo "s	Connect to the selected bandit accound and use an ssh key"
+	echo " 	with the corresponding name in ssh-keys"
+	echo
+	return
+}
+
+basicConnect() {
+        var1="-- bandit$num --"	
+	title="--- Account: bandit$num "
+	echo "Connecting with password to bandit$num@bandit.labs.overthewire.org"
+	echo
+	echo $title$(printf -- -%.s $(seq -s ' ' $((67-${#title}))))
+        sed -n "/$var1/, /^password:/p" bandit.notes | sed -n "/^Account:/, /^password:/p" |  tail -n +2
+	echo "-------------------------------------------------------------------"
+	ssh -p 2220 bandit$num@bandit.labs.overthewire.org
+}
+
+keyConnect() {
+        var1="-- bandit$num --"
+	title="--- Account: bandit$num "
+	key="ssh-keys/bandit$num "
+	echo "Connecting with SSH key to bandit$num@bandit.labs.overthewire.org"
+	echo
+	echo $title$(printf -- -%.s $(seq -s ' ' $((67-${#title}))))
+        sed -n "/$var1/, /^password:/p" bandit.notes | sed -n "/^Account:/, /^password:/p" |  tail -n +2
+	echo "-------------------------------------------------------------------"
+	ssh -p 2220 -i $key bandit$num@bandit.labs.overthewire.org	
+}
+
+
+
+while getopts "hb:s:" option; do
+    case $option in
+        h) # display help
+            help
+            exit
+            ;;
+        b) # basic connect with password
+	    num=$OPTARG
+	    basicConnect 
+            exit
+            ;;
+        s) # connect by ssh
+	    num=$OPTARG
+            keyConnect
+            exit
+            ;;
+        *) # default
+            ;;
+    esac
+done
+
+if ! [[ -z $1 ]]; then
+    num=$1
+    basicConnect
+    exit
+fi
+
+echo use ./b.connect -h to show help menu
+    

@@ -1,0 +1,25 @@
+#!/bin/bash
+help() {
+	echo "bandit interactor"
+	echo "use the created tools to interact with the overthewire bandit lab"
+	echo 
+	echo "Syntax"
+	echo "	./bandit info [options]"
+	echo "	./bandit connect [options]"
+	echo "	./bandit help"
+	echo
+	echo "info      run the info script. use bandit info -h for help"
+	echo "connect   run the connect script. use bandit connect -h for help"
+	echo "help      show this help menu"
+}
+
+
+if [[ "$1" = "connect" ]]; then
+	./.b.connect "${@:2}"
+elif [[ "$1" = "info" ]]; then
+	./.b.info "${@:2}"
+elif [[ "$1" = "help" ]]; then
+	help
+else
+    echo "bad command: Use [connect|info|help]"
+fi

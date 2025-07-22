@@ -1,0 +1,176 @@
+#!/bin/bash
+help() {
+	echo "Display Account information or Notes for a specified bandit account"
+	echo
+	echo "Syntax:"
+	echo "	./bandit info [a|n] BANDIT_NUMBER"
+	echo "	./bandit info [OPTIONS] BANDIT_NUMBER"
+	echo "	./bandit info [-h]"
+	echo
+	echo "Options:"
+	echo "	h   display the help menu."
+	echo "	n   display notes related to the bandit account."
+	echo "	a   display account information of a bandit account."
+	echo "	l   list all of accounts and/or notes"
+	echo "	p   display passwords in result instead of hiding them"
+	echo
+	echo "Examples:"
+	echo '	show account 25'
+	echo '	./bandit info -a 25'
+	echo
+	echo '	show mutiple accounts or notes'
+	echo '	./bandit info -a 25 -a 26 -n 26'
+	echo '	show account 25 and reveal its password'
+	echo '	./bandit info -p -a 25'
+	echo
+	echo '	show notes from account 25'
+	echo '	./bandit info -n 25'
+	echo
+	echo '	show notes from all accounts'
+	echo '	./bandit info -l n'
+	echo
+	echo '	show all available information for all accounts'
+	echo '	./bandit info -l an'
+	echo
+	echo '	show all available information for all accounts and reveal passwords'
+	echo '	./bandit info -p -l a'
+}
+
+getAccount() {
+	var1="-- bandit$1 --"
+	title="┌- Account: bandit$1 "
+	pad="                                                                                    "
+	
+	echo
+	echo $title$(printf -- -%.s $(seq -s ' ' $((80-${#title}))))"┐"
+	if [[ -z $showpass ]]; then
+	    sed -n "/$var1/, /^password:/p" bandit.notes | \
+		sed "s/^password:.*/password: xxxxxxxx/" | \
+		sed -n "/^Account:/, /^password:/p" | \
+		tail -n +2 | sed 's/^/| /' | \
+		sed "s/$/${pad}/" | cut -c1-80 | sed 's/$/|/'
+	else
+	    sed -n "/$var1/, /^password:/p" bandit.notes | \
+		sed -n "/^Account:/, /^password:/p" | \
+		tail -n +2 | sed 's/^/| /' | \
+		sed "s/$/${pad}/" | cut -c1-80 | sed 's/$/|/'
+	fi
+	echo -n "|${pad}" | cut -c1-80 | sed 's/$/|/'
+	echo "└"$(printf --   -%.s $(seq -s ' ' 79))"┘"
+	echo
+}
+
+getInfo() {
+	var1="-- bandit$1 --"
+	title="┌-- Account: bandit$1 "
+	pad="                                                                                                        "
+
+	echo
+	echo $title$(printf -- -%.s $(seq -s ' ' $((80-${#title}))))"┐"
+	sed -n "/$var1/, /^Account:/p" bandit.notes | \
+		sed "s/$/${pad}/" | cut -c1-78 | sed 's/$/|/' | \
+		head -n -1 | tail -n +2 | sed 's/^/| /'
+	echo -n "|${pad}" | cut -c1-80 | sed 's/$/|/'
+	echo "└"$(printf --   -%.s $(seq -s ' ' 79))"┘"
+}
+
+listAccounts() {
+	#TODO implement this
+	pad="                                                                         "
+	if ! [[ -z list ]]; then list="$(seq 0 34)"; fi
+	echo "┌------------------------------------------------------------------┐"
+	echo "|               All Account Info for Bandit WarGame                |"
+	echo "|------------------------------------------------------------------|"
+        echo "|                                                                  |"
+	for num in $(seq 0 34); do
+	    echo "$(getAccount $num| head -n -2 | tail -n +2)" | \
+		sed "s/^\(.\)/|/" | \
+		sed "s/$/${pad}/" | cut -c1-67 | sed 's/$/|/'
+	done
+	echo "└------------------------------------------------------------------┘"
+	return
+}
+
+listNotes() {
+	#TODO implement this
+	pad="                                                                                    "
+	if ! [[ -z list ]]; then list="$(seq 0 34)"; fi
+	echo "┌-------------------------------------------------------------------------------┐"
+	echo "|                       All Notes for Bandit WarGame                            |"
+	echo "|-------------------------------------------------------------------------------|"
+	echo "|                                                                               |"
+	for num in $list; do
+	    echo "$(getInfo $num | head -n -2 | tail -n +2)" | \
+		sed "s/^\(.\)/|/" | \
+		sed "s/$/${pad}/" | cut -c1-80 | sed 's/$/|/'
+	done
+	echo "└-------------------------------------------------------------------------------┘"
+	return
+}
+
+listAll() {
+	pad="                                                                                      "
+	if ! [[ -z list ]]; then list="$(seq 0 34)"; fi
+	    echo "┌-------------------------------------------------------------------------------┐"
+	    echo "|                   All Information for Bandit WarGame                          |"
+	    echo "|-------------------------------------------------------------------------------|"
+	    echo "|                                                                               |"
+	for num in $list; do
+	    echo "$(getAccount $num | head -n -2 | tail -n +2)" | \
+		sed "s/^\(.\)/|/" | sed "s/\(.\)$/|/"
+	    echo "| . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . |"
+	    echo "$(getInfo $num | head -n -2 | tail -n +3)" | \
+		sed "s/^\(.\)/|/" 
+	done
+	    echo "└-------------------------------------------------------------------------------┘"
+	return
+}
+
+
+if [[ -z "$1" ]]; then
+    echo "use -h for help menu"
+    exit
+fi
+
+num=${@: -1}
+while getopts "hpl:n:a:" option; do
+    case $option in
+        h) # display help
+	    help
+	    exit
+	    ;;
+	p)
+	    showpass=0
+	    ;;
+	l) # list by option
+	    opt=$OPTARG
+	    case $opt in
+		a) #list accounts
+		    echo "$(listAccounts)" 
+	 	    ;;
+		n) #list accounts
+		    listNotes
+		    ;;
+		an) #list both
+		    listAll
+		    ;;
+		na) #list both
+		    listAll
+		    ;;
+		*) #list
+		    echo "invalid option. Options: [a|n]"
+		    ;;
+	    esac
+	    exit
+	    ;;
+	n) # print main feild
+	    getInfo $OPTARG
+	    ;;
+	a) # print account info
+	    getAccount $OPTARG
+	    ;;
+	*) # do nothing by defaut
+	    ;;
+    esac
+done
+
